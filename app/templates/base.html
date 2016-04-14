@@ -24,6 +24,7 @@
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                 {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('auth.change_password') }}">修改密码</a></li>
                 <li><a href="{{ url_for('auth.logout') }}">退出</a></li>
                 {% else %}
                 <li><a href="{{ url_for('auth.login') }}">登陆</a></li>

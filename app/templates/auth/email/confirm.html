@@ -1,0 +1,8 @@
+<p>Dear {{ user.username }},</p>
+<p>欢迎来到<b>本来果坊</b>!</p>
+<p>确认你的帐户请 <a href="{{ url_for('auth.confirm', token=token, _external=True) }}">点击我</a>.</p>
+<p>或者，你可以粘贴下面的链接到浏览器的地址栏:</p>
+<p>{{ url_for('auth.confirm', token=token, _external=True) }}</p>
+<p>诚挚的,</p>
+<p>本来果坊M站开发团队</p>
+<p><small>注意: 请不要回复此邮件.</small></p>
