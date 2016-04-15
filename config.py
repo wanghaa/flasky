@@ -11,10 +11,10 @@ class Config:
     MAIL_PORT = 25
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
-    MAIL_USERNAME = 'wanghaojava'
-    MAIL_PASSWORD = 'wanghaode126'
-    FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
-    FLASKY_MAIL_SENDER = 'Flasky Admin <wanghaojava@126.com>'
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')  # 'wanghaojava'
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')  # 'wanghaode126'
+    FLASKY_MAIL_SUBJECT_PREFIX = '[本来果坊]'
+    FLASKY_MAIL_SENDER = '本来果坊 <wanghaojava@126.com>'
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
 
     @staticmethod

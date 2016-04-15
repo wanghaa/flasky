@@ -1,7 +1,7 @@
 from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, login_required, current_user
 from . import auth
-from .forms import LoginForm, RegistionForm, ChangePasswordForm
+from .forms import LoginForm, RegistionForm, ChangePasswordForm, PasswordResetRequestForm, PasswordResetForm
 from ..models import User
 from ..email import send_email
 from .. import db
@@ -36,6 +36,41 @@ def change_password():
         else:
             flash('原始密码不正确，请重试')
     return render_template('auth/change_password.html', form=form)
+
+
+@auth.route('/reset', methods=['GET', 'POST'])
+def password_reset_request():
+    if not current_user.is_anonymous:
+        return redirect(url_for('main.index'))
+    form = PasswordResetRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            token = user.generate_reset_token()
+            send_email(user.email, '密码重置', 'auth/email/reset_password', user=user, token=token,
+                       next=request.args.get('next'))
+            flash('一封重置密码附带指令的邮件已发送到你的邮箱')
+            return redirect(url_for('auth.login'))
+        else:
+            flash('邮箱不正确')
+    return render_template('auth/reset_password.html', form=form)
+
+
+@auth.route('/reset/<token>')
+def password_reset(token):
+    if not current_user.is_anonymous:
+        return redirect(url_for('main.index'))
+    form = PasswordResetForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is None:
+            return redirect(url_for('main.index'))
+        if user.reset_password(token, form.password.data):
+            flash('你的密码已重置')
+            return redirect(url_for('auth.login'))
+        else:
+            return redirect(url_for('main.index'))
+    return render_template('auth/reset_password.html', form=form)
 
 
 @auth.route('/register', methods=['GET', 'POST'])
