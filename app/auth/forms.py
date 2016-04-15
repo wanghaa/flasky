@@ -21,10 +21,12 @@ class RegistionForm(Form):
     submit = SubmitField('注册')
 
     def validate_email(self, field):
+        """"自定义校验 用validate_+字段"""
         if User.query.filter_by(email=field.data).first():
             raise ValidationError('邮箱已存在')
 
     def validate_username(self, field):
+        """"自定义校验 用validate_+字段"""
         if User.query.filter_by(username=field.data).first():
             raise ValidationError('用户名已存在')
 
@@ -50,5 +52,17 @@ class PasswordResetForm(Form):
     submit = SubmitField('重置密码')
 
     def validate_email(self, field):
+        """"自定义校验 用validate_+字段"""
         if User.query.filter_by(email=field.data).first() is None:
             raise ValidationError('未知的邮件地址.')
+
+
+class ChangeEmailForm(Form):
+    email = StringField('新邮件', validators=[DataRequired(), Length(1, 64), Email()])
+    password = PasswordField('密码', validators=[DataRequired()])
+    submit = SubmitField('更新邮件地址')
+
+    def validate_email(self, field):
+        """"自定义校验 用validate_+字段"""
+        if User.query.filter_by(email=field.data).first():
+            raise ValidationError('邮件已注册.')

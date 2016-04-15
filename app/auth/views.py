@@ -1,7 +1,8 @@
 from flask import render_template, redirect, request, url_for, flash
-from flask_login import login_user, login_required, current_user
+from flask_login import login_user, logout_user, login_required, current_user
 from . import auth
-from .forms import LoginForm, RegistionForm, ChangePasswordForm, PasswordResetRequestForm, PasswordResetForm
+from .forms import LoginForm, RegistionForm, ChangePasswordForm, PasswordResetRequestForm, PasswordResetForm, \
+    ChangeEmailForm
 from ..models import User
 from ..email import send_email
 from .. import db
@@ -96,7 +97,7 @@ def confirm(token):
         flash('恭喜你，邮箱验证成功！')
     else:
         flash('验证链接无效')
-    return redirect('main.index')
+    return redirect(url_for('main.index'))
 
 
 @auth.route('/confirm')
@@ -123,6 +124,22 @@ def login():
 @auth.route('/logout')
 @login_required
 def logout():
-    login_user()
+    logout_user()
     flash('已退出登录')
     return redirect(url_for('main.index'))
+
+
+@auth.route('/change-email', methods=['GET', 'POST'])
+@login_required
+def change_email_request():
+    form = ChangeEmailForm()
+    if form.validate_on_submit():
+        if current_user.verify_password(form.password.data):
+            new_email = form.email.data
+            token = current_user.generate_email_change_token(new_email)
+            send_email(new_email, '修改邮箱地址', 'auth/email/change_email', user=current_user, token=token)
+            flash('验证链接已发送到你的新邮箱，请注意查收')
+            return redirect(url_for('mian.index'))
+        else:
+            flash('无效的邮箱或者密码')
+    return render_template('auth/change_email.html', form=form)

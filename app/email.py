@@ -10,7 +10,6 @@ def send_async_email(app, msg):
 
 
 def send_email(to, subject, template, **kwargs):
-    to='wh09@vip.qq.com'
     app = current_app._get_current_object()
     msg = Message(app.config['FLASKY_MAIL_SUBJECT_PREFIX'] + ' ' + subject,
                   sender=app.config['FLASKY_MAIL_SENDER'], recipients=[to])
