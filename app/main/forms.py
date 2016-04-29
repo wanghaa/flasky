@@ -41,3 +41,8 @@ class EditProfileAdminForm(Form):
     def validate_username(self, filed):
         if filed.data != self.user.username and User.query.filter_by(username=filed.data).first():
             raise ValidationError('用户名已占用')
+
+
+class PostForm(Form):
+    body = TextAreaField('说点什么？', validators=[DataRequired()])
+    submit = SubmitField('发表')
