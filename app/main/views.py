@@ -25,8 +25,9 @@ def user(username):
     user = User.query.filter_by(username=username).first_or_404()
     is_admin = user.is_administrator()
     print("是否是管理员：" + str(is_admin))
+    posts = user.posts.order_by(Post.timestamp.desc()).all()
 
-    return render_template('user.html', user=user)
+    return render_template('user.html', user=user, posts=posts)
 
 
 @main.route('/edit-profile', methods=['GET', 'POST'])
