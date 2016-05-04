@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, app
+from flask import render_template, flash, redirect, url_for, request, current_app
 from flask_login import current_user, login_required
 
 from app.models import User, Role, Permission, Post
@@ -14,10 +14,13 @@ def index():
         post = Post(body=form.body.data, author=current_user._get_current_object())
         db.session.add(post)
         return redirect(url_for('.index'))
-    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    page = request.args.get('page', 1, type=int)
+    pagination = Post.query.order_by(Post.timestamp.desc()).paginate(page, per_page=current_app.config[
+        'FLASKY_POSTS_PER_PAGE'], error_out=False)
+    posts = pagination.items
     can_write = current_user.can(Permission.WRITE_ARTICLES)
     print("是否有权限写博客：" + str(can_write))
-    return render_template('index.html', form=form, posts=posts)
+    return render_template('index.html', form=form, posts=posts, pagination=pagination)
 
 
 @main.route('/user/<username>')
@@ -25,9 +28,11 @@ def user(username):
     user = User.query.filter_by(username=username).first_or_404()
     is_admin = user.is_administrator()
     print("是否是管理员：" + str(is_admin))
-    posts = user.posts.order_by(Post.timestamp.desc()).all()
-
-    return render_template('user.html', user=user, posts=posts)
+    page = request.args.get('page', 1, type=int)
+    pagination = user.posts.order_by(Post.timestamp.desc()).paginate(page, per_page=current_app.config[
+        'FLASKY_POSTS_PER_PAGE'], error_out=False)
+    posts = pagination.items
+    return render_template('user.html', user=user, posts=posts, pagination=pagination)
 
 
 @main.route('/edit-profile', methods=['GET', 'POST'])
