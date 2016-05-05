@@ -5,6 +5,7 @@ from app.models import User, Role, Permission, Post
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm
 from .. import db
+from ..decorators import admin_required
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -52,7 +53,10 @@ def edit_profile():
     return render_template('edit_profile.html', form=form)
 
 
-def edit_profile_admin():
+@main.route('/edit-profile/<int:id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_profile_admin(id):
     user = User.query.get_or_404(id)
     form = EditProfileAdminForm(user=user)
     if form.validate_on_submit():
@@ -74,3 +78,9 @@ def edit_profile_admin():
     form.location.data = user.location
     form.about_me.data = user.about_me
     return render_template('edit_profile.html', form=form, user=user)
+
+
+@main.route('/post/<int:id>')
+def post(id):
+    post = Post.query.get_or_404(id)
+    return render_template('post.html', posts=[post])
