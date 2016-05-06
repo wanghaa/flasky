@@ -22,7 +22,7 @@
             <p>加入时间：{{ moment(user.member_since).format('L') }}. 上次登录 {{ moment(user.last_seen).fromNow() }}.</p>
 
 
-            <p>{{ user.posts.count() }} 篇博客.</p>
+            <p>{{ user.posts.count() }} 篇博客.{{ user.comments.count() }} 篇评论.</p>
 
             <p>
                 {% if current_user.can(Permission.FOLLOW) and user != current_user %}
